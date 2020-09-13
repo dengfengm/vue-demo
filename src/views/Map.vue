@@ -1,95 +1,83 @@
 <template>
-  <div class="about">
-    <h1>This is an demo page</h1>
-    <div>
-      <input type="text" placeholder="标题" v-model="obj.title" />
-      <input type="text" placeholder="发布人" v-model="obj.user" />
-      <input type="date" placeholder="发布时间" v-model="obj.date" />
-      <button @click="add()">新增</button>
-    </div>
-    <div>
-      <table cellpadding="5" cellspacing="0">
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>标题</th>
-            <th>发布人</th>
-            <th>发布时间</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(v,i) in lists" :key="i">
-            <td>{{i+1}}</td>
-            <td>{{v.title}}</td>
-            <td>{{v.user}}</td>
-            <td>{{v.date}}</td>
-            <td>
-              <button @click="del(i)">删除</button>
-              <button @click="edit(i)">编辑</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div id="layer" v-show="flag">
-        <div>
-          编辑
-          <span @click="flag=false">x</span>
-        </div>
-        <div>
-          <input type="text" placeholder="标题" v-model="editobj.title"/>
-          <input type="text" placeholder="发布人"  v-model="editobj.user"/>
-          <input type="date" placeholder="发布时间"  v-model="editobj.date"/>
-          <button @click="update()">更新</button>
-          <button @click="flag=false">取消</button>
-        </div>
-      </div>
-    </div>
+  <div class="home">
+    <h1>This is an map page</h1>
+    <div id="echart" style="width: 800px;height:600px;margin:0 auto"></div>
   </div>
 </template>
 
 <script>
+import echarts from 'echarts'
+import 'echarts/map/js/china'
 export default {
   name: 'Map',
   data () {
     return {
-      obj: {
-        title: '',
-        user: '',
-        date: ''
-      },
-      editobj: {
-        title: '',
-        user: '',
-        date: ''
-      },
-      lists: [
-        { title: '标题1', user: 'a', date: '2020-02-01' },
-        { title: '标题2', user: 'b', date: '2020-02-03' }
-      ],
-      flag: false,
-      index: 0
+      name: ''
     }
   },
+  mounted () {
+    this.init()
+  },
   methods: {
-    add: function () {
-      const { title, user, date } = this.obj
-      if (!title || !user || !date) return
-      this.lists.push({ title, user, date })
-      this.obj = {}
-    },
-    del: function (i) {
-      this.lists.splice(i, 1)
-    },
-    edit: function (i) {
-      this.index = i
-      this.flag = true
-      this.editobj = { ...this.lists[i] }
-    },
-    update: function () {
-      this.lists[this.index] = this.editobj
-      this.flag = false
+    init: function () {
+      echarts.init(document.getElementById('echart')).setOption({
+        title: {
+          text: '中国人口密度 （2011）',
+          subtext: '人口密度数据来自Wikipedia',
+          sublink: 'http://zh.wikipedia.org/wiki/%E9%A6%99%E6%B8%AF%E8%A1%8C%E6%94%BF%E5%8D%80%E5%8A%83#cite_note-12'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '城市名：{b}<br/>人数：{c}'
+        },
+        toolbox: {
+          show: true,
+          orient: 'vertical',
+          left: 'right',
+          top: 'center',
+          feature: {
+            dataView: { readOnly: false },
+            restore: {},
+            saveAsImage: {}
+          }
+        },
+        itemStyle: {
+          color: '#ddb926'
+        },
+        emphasis: {
+          label: {
+            color: '#ddd',
+            fontSize: 12
+          },
+          itemStyle: {
+            borderColor: 'bule',
+            areaColor: '#eee'
+          }
+        },
+        visualMap: {
+          min: 800,
+          max: 5000,
+          text: ['High', 'Low'],
+          realtime: false,
+          calculable: true,
+          inRange: {
+            color: ['lightskyblue', 'yellow', 'orangered']
+          }
+        },
+        series: [{
+          type: 'map',
+          mapType: 'china',
+          smooth: true,
+          data: [
+            { name: '北京', value: '1000' },
+            { name: '上海', value: '2000' }
+          ],
+          label: {
+            show: true,
+            fontSize: 10
+          }
+        }]
+      })
     }
   }
 }
